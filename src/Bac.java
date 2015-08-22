@@ -2,11 +2,11 @@ package bac;
 
 import bac.crypto.Crypto;
 import bac.helper.Helper;
+import bac.settings.Settings;
 
 
 public final class Bac  {
-
-public static final String VERSION = "BAC V1.0";    
+  
 
     public static void main(String[] args) {
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -23,7 +23,7 @@ public static final String VERSION = "BAC V1.0";
     }
 	
     public static void shutdown() {        
-        Helper.logMessage("Bac server " + VERSION + " stopped.");        
+        Helper.logMessage("Bac server " + Settings.VERSION + " stopped.");        
     }
 
     private static class Init {
@@ -35,9 +35,10 @@ public static final String VERSION = "BAC V1.0";
             Helper.logMessage("logging enabled");
 					
             long currentTime = System.currentTimeMillis();
+            Settings.init();
             Helper.logMessage("Initialization took " + (currentTime - startTime) / 1000 + " seconds");
-            Helper.logMessage("Bac server " + VERSION + " started successfully.");
-            
+            Helper.logMessage("Bac server " + Settings.VERSION + " started successfully.");
+            Helper.logMessage("EpochBeginning:"+Settings.epochBeginning);
             Helper.logMessage("Testing Crypto module and helper functions.");
 
             byte[] PublicKey = new byte[32];                        
