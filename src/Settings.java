@@ -7,6 +7,10 @@ public final class Settings {
 
    public static final String VERSION = "BAC V1.0";
 
+   public final static int APIport = 8080;
+   public final static String APIhost = "127.0.0.1";
+   public final static int APItimeout = 15000;
+
    public static long epochBeginning;
 
    public static final String alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";

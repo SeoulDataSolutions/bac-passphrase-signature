@@ -3,7 +3,7 @@ package bac;
 import bac.crypto.Crypto;
 import bac.helper.Helper;
 import bac.settings.Settings;
-
+import bac.api.Api;
 
 public final class Bac  {
   
@@ -18,19 +18,10 @@ public final class Bac  {
         init();
     }
 
-    public static void init() {
-        Init.init();
-    }
-	
-    public static void shutdown() {        
-        Helper.logMessage("Bac server " + Settings.VERSION + " stopped.");        
-    }
-
-    private static class Init {
-
-        static {
-
-            long startTime = System.currentTimeMillis();
+    public static void init()  {
+    	
+		try {
+           long startTime = System.currentTimeMillis();
 
             Helper.logMessage("logging enabled");
 					
@@ -49,18 +40,18 @@ public final class Bac  {
             signature = Crypto.sign(message,"secretPhrase");
             Helper.logMessage("Verify result:"+Boolean.toString(
             Crypto.verify(signature, message, PublicKey)));
-
+            Api.init();
             
-               
-            
-        }
-
-        private static void init() {}
-
-        private Init() {} // never
-
+		} catch (Exception e) {
+		     Helper.logMessage("Error starting BAC server.");
+		}    	
+    }
+	
+    public static void shutdown() {        
+        Helper.logMessage("Bac server " + Settings.VERSION + " stopped.");        
     }
 
+  
     private Bac() {} // never
 	
 }
