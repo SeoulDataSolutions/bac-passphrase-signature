@@ -32,8 +32,11 @@ public final class Bac  {
             Helper.logMessage("EpochBeginning:"+Settings.epochBeginning);
             Helper.logMessage("Testing Crypto module and helper functions.");
 
-            byte[] PublicKey = new byte[32];                        
+            byte[] PublicKey = new byte[32];                    
             PublicKey = Crypto.getPublicKey("secretPhrase");
+            Helper.logMessage("PublicKey:"+Helper.Base58encode((byte[]) PublicKey));
+            Helper.logMessage("BAC Address:"+Helper.PublicKeyToAddress((byte[]) PublicKey));
+            
             byte[] signature = new byte[64];
             byte[] message = Helper.convert((String)"0123456789ABCDEF");
             Helper.logMessage("Message:"+Helper.convert((byte[]) message));

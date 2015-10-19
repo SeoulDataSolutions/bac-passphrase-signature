@@ -5,8 +5,25 @@
 		<title>BAC API Server</title>
 		<link rel="stylesheet" type="text/css" href="css/style.css"  />		
 		<script src="js/jquery.min.js"></script>
+		<script src="js/helper.js"></script>
 	</head>
 	<body>
-     <h1>BAC API Server</h1>
+     <h1>BAC Server</h1>    
+		<h2>Admin tools</h3>
+		<b>Get Address:</b><br/>
+		<form action="/api" method="POST" onsubmit="return submitForm(this);">
+		    <input type="hidden" name="requestType" value="GetAddress"/>
+		    <table>
+		        <tr>
+		            <td>Secret Phrase:</td>
+		            <td><input type="password" name="secretPhrase"/></td>
+		        </tr>
+		        <tr>
+		            <td colspan="2"><input type="submit" value="submit"/></td>
+		        </tr>
+		    </table>
+		    <div class="result"></div>
+		</form>
+		<hr>     
 	</body>
 </html>

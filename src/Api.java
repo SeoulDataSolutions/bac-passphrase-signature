@@ -20,7 +20,7 @@ import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-
+import org.eclipse.jetty.servlet.ServletContextHandler;
 
 public final class Api
 {
@@ -45,9 +45,10 @@ public final class Api
             APIFileHandler.setResourceBase("html");
 
             APIHandlers.addHandler(APIFileHandler);    
-    
 
-            ServletHandler APIHandler = new ServletHandler();
+            ServletContextHandler APIHandler = new ServletContextHandler();    
+                                  
+            APIHandler.addServlet(APIServlet.class, "/api");
 
             APIHandlers.addHandler(APIHandler);
 
