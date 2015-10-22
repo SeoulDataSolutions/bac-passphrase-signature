@@ -2,6 +2,7 @@ package bac.api;
 
 import bac.helper.Helper;
 import bac.crypto.Crypto;
+import bac.settings.Settings;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -48,6 +49,10 @@ public final class APIServlet extends HttpServlet {
 				case "GetAddress": {    
 				  AjaxResponse = AjaxGetAddress(ajaxRequest);   
             }
+				case "GetInfo": {    
+				  AjaxResponse = AjaxGetInfo(ajaxRequest);   
+            }
+
         }                       
                 
         response.setContentType("text");
@@ -71,6 +76,24 @@ public final class APIServlet extends HttpServlet {
 		       response.put("PublicKey", Helper.Base58encode((byte[]) PublicKey));
 		       response.put("BAC Address", Helper.PublicKeyToAddress((byte[]) PublicKey));
 		       response.put("secretPhrase", ajaxRequest.get("secretPhrase"));
+		       response.put("requestType", ajaxRequest.get("requestType"));
+		 } catch (Exception e) {
+				     Helper.logMessage("Response error. (AjaxGetAddress)");
+				     response.put("timestamp",System.currentTimeMillis());
+				     response.put("error",1);
+		 }              
+      
+       return response;
+    }
+    
+    private JSONObject AjaxGetInfo( JSONObject ajaxRequest ) {
+    	
+       JSONObject response = new JSONObject();
+       
+		 try {       
+		       response.put("timestamp",System.currentTimeMillis());
+		       response.put("AnnouncedAddress", Settings.MyAnnouncedAddress);
+		       response.put("Version", Settings.VERSION);
 		       response.put("requestType", ajaxRequest.get("requestType"));
 		 } catch (Exception e) {
 				     Helper.logMessage("Response error. (AjaxGetAddress)");

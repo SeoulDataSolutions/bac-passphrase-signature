@@ -24,6 +24,7 @@ public final class Settings {
    public final static int APIport = 8080;
    public static String APIhost = "127.0.0.1";
    public final static int APItimeout = 15000;
+   public static String MyAnnouncedAddress ="127.0.0.1:8080";
 
    public static long epochBeginning;
 
