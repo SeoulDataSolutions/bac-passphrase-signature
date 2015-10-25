@@ -4,10 +4,10 @@ import bac.crypto.Crypto;
 import bac.helper.Helper;
 import bac.settings.Settings;
 import bac.api.Api;
+import bac.cron.Cron;
 
 public final class Bac  {
   
-
     public static void main(String[] args) {
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
@@ -44,13 +44,16 @@ public final class Bac  {
             Helper.logMessage("Verify result:"+Boolean.toString(
             Crypto.verify(signature, message, PublicKey)));
             Api.init();
+            Cron.AddCronThread( Cron.ScheduleTest, 5 );
+            Cron.AddCronThread( Cron.ScheduleTest2, 3 );
             
 		} catch (Exception e) {
 		     Helper.logMessage("Error starting BAC server.");
 		}    	
     }
 	
-    public static void shutdown() {        
+    public static void shutdown() {
+    	  Cron.stop();        
         Helper.logMessage("Bac server " + Settings.VERSION + " stopped.");        
     }
 
