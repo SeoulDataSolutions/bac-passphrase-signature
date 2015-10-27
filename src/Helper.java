@@ -4,10 +4,16 @@ import bac.settings.Settings;
 import bac.crypto.Crypto;
 
 import java.math.BigInteger;
+
 import java.text.SimpleDateFormat;
+
 import java.util.Date;
+import java.util.Random;
+import java.util.Collection;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
 import java.io.UnsupportedEncodingException;
 
 
@@ -234,4 +240,14 @@ public final class Helper {
 
 		return range;
 	}
+	
+	
+
+   public static Object getRandomObject(Collection from) {
+      Random rnd = new Random();
+      int i = rnd.nextInt(from.size());
+      return from.toArray()[i];
+   }
+
+
 }

@@ -21,10 +21,10 @@ public final class Settings {
    public static final String CONFIG_FILE = "settings.conf";
    private static final Properties defaultProperties = new Properties();
 
-   public final static int APIport = 8080;
+   public static int APIport = 8080;
    public static String APIhost = "127.0.0.1";
-   public final static int APItimeout = 15000;
-   public static String MyAnnouncedAddress ="127.0.0.1:8080";
+   public static String SeedNodes = "127.0.0.1:8080;127.0.0.1:8081";
+   public final static int APItimeout = 15000;   
 
    public static long epochBeginning;
 
@@ -54,6 +54,10 @@ public final class Settings {
 			             defaultProperties.load(is);
 			             if (defaultProperties.getProperty("APIhost") != null)
 			               APIhost = defaultProperties.getProperty("APIhost");
+			             if (defaultProperties.getProperty("APIport") != null)
+			               APIport = Integer.parseInt(defaultProperties.getProperty("APIport"));
+			             if (defaultProperties.getProperty("SeedNodes") != null)
+			               SeedNodes = defaultProperties.getProperty("SeedNodes");    
 			         } 
 		         } catch (IOException e) {
 		                    Helper.logMessage("Config file read IOException.\n");

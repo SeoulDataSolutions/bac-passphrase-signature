@@ -22,6 +22,7 @@ import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
+
 public final class Api
 {
      
@@ -65,9 +66,9 @@ public final class Api
                     Helper.logMessage("Failed to start API server.");
                 }
             
-
-    
         
     }
+    
+    
 }
 

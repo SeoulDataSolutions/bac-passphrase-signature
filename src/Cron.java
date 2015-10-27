@@ -9,35 +9,19 @@ import java.util.concurrent.TimeUnit;
 
 public final class Cron {
 	
-   static ScheduledExecutorService CronThreads = Executors.newScheduledThreadPool(1);
+   static ScheduledExecutorService CronThreads = Executors.newScheduledThreadPool(2);
 
     public static void stop() {
          CronThreads.shutdown();
         	Helper.logMessage("Cron services stoped.");        
     }
 
-
-
    public static synchronized void AddCronThread(Runnable runnable, Integer delay) {
    	  CronThreads.scheduleWithFixedDelay(runnable, 0, delay, TimeUnit.SECONDS);
         Helper.logMessage("Cron service ("+runnable.toString()+") started.");
                 
     }   
-    
-    
-    public static Runnable ScheduleTest = new Runnable() { 
-     public void run() {
-           Helper.logMessage("Schedule test executed.");
-     }
-};
-
-    public static Runnable ScheduleTest2 = new Runnable() { 
-     public void run() {
-           Helper.logMessage("Schedule test2 executed.");
-     }
-};
-
-  
+      
     private Cron() {} //never
 
 }

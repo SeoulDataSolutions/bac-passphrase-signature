@@ -1,6 +1,7 @@
 package bac;
 
 import bac.crypto.Crypto;
+import bac.peers.Peers;
 import bac.helper.Helper;
 import bac.settings.Settings;
 import bac.api.Api;
@@ -44,9 +45,7 @@ public final class Bac  {
             Helper.logMessage("Verify result:"+Boolean.toString(
             Crypto.verify(signature, message, PublicKey)));
             Api.init();
-            Cron.AddCronThread( Cron.ScheduleTest, 5 );
-            Cron.AddCronThread( Cron.ScheduleTest2, 3 );
-            
+            Peers.init();            
 		} catch (Exception e) {
 		     Helper.logMessage("Error starting BAC server.");
 		}    	
