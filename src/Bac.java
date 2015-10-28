@@ -6,6 +6,7 @@ import bac.helper.Helper;
 import bac.settings.Settings;
 import bac.api.Api;
 import bac.cron.Cron;
+import bac.database.Database;
 
 public final class Bac  {
   
@@ -44,6 +45,7 @@ public final class Bac  {
             signature = Crypto.sign(message,"secretPhrase");
             Helper.logMessage("Verify result:"+Boolean.toString(
             Crypto.verify(signature, message, PublicKey)));
+            Database.init();
             Api.init();
             Peers.init();            
 		} catch (Exception e) {
@@ -53,6 +55,7 @@ public final class Bac  {
 	
     public static void shutdown() {
     	  Cron.stop();        
+    	  Database.stop();
         Helper.logMessage("Bac server " + Settings.VERSION + " stopped.");        
     }
 
