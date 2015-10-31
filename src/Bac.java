@@ -7,6 +7,8 @@ import bac.settings.Settings;
 import bac.api.Api;
 import bac.cron.Cron;
 import bac.database.Database;
+import bac.account.Accounts;
+import bac.account.Account;
 
 public final class Bac  {
   
@@ -47,9 +49,15 @@ public final class Bac  {
             Crypto.verify(signature, message, PublicKey)));
             Database.init();
             Api.init();
-            Peers.init();            
+            Peers.init();
+               
+            // Account Put/Get test   
+            Account account = new Account("B7z1pmi6XifvGMhV7T1AxJsP8UsSVE5mP3SHKuDqd83xwAEZ");
+            Accounts.getInstance().PutAccount(account);
+            account = Accounts.getInstance().GetAccount("B7z1pmi6XifvGMhV7T1AxJsP8UsSVE5mP3SHKuDqd83xwAEZ");
+         
 		} catch (Exception e) {
-		     Helper.logMessage("Error starting BAC server.");
+		     Helper.logMessage("Error ("+e.toString()+") starting BAC server.");
 		}    	
     }
 	
