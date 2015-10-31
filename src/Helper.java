@@ -12,9 +12,21 @@ import java.util.Random;
 import java.util.Collection;
 
 import java.security.MessageDigest;
+import java.security.Provider;
+import java.security.Provider.Service;
+import java.security.Security;
+
+import gnu.crypto.hash.RipeMD160;
+import gnu.crypto.hash.HashFactory;
+import gnu.crypto.hash.IMessageDigest;
+
 import java.security.NoSuchAlgorithmException;
 
 import java.io.UnsupportedEncodingException;
+
+import java.io.*;
+import java.util.zip.GZIPOutputStream;
+import java.util.zip.GZIPInputStream;
 
 
 public final class Helper {
@@ -44,10 +56,17 @@ public final class Helper {
    public static String PublicKeyToAddress(byte[] PublicKey) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 					
 		StringBuilder AddrString = new StringBuilder();                         
-      byte[] buffer;     	
+      byte[] buffer; 
+      byte[] rbuffer;
+                	
+      IMessageDigest imd = HashFactory.getInstance("RIPEMD160");		
+      imd.reset();
+      rbuffer = PublicKey;            
+      imd.update(rbuffer,0,rbuffer.length);
+      byte[] rdigest = imd.digest();
 				     			
 		AddrString.append("B");
-		AddrString.append(Base58encode((byte[]) PublicKey));							      		
+		AddrString.append(Base58encode((byte[]) rdigest));							      		
 		
       MessageDigest md = MessageDigest.getInstance("SHA-256");
       md.reset();
@@ -249,5 +268,30 @@ public final class Helper {
       return from.toArray()[i];
    }
 
+   public static String CompressString(String str) throws IOException {
+    if (str == null || str.length() == 0) {
+        return str;
+    }
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    GZIPOutputStream gzip = new GZIPOutputStream(out);
+    gzip.write(str.getBytes());
+    gzip.close();
+    String outStr = out.toString("UTF-8");
+    return outStr;
+ }
+
+  public static String DecompressString(String str) throws Exception {
+        if (str == null || str.length() == 0) {
+            return str;
+        }
+        GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(str.getBytes("UTF-8")));
+        BufferedReader bf = new BufferedReader(new InputStreamReader(gis, "UTF-8"));
+        String outStr = "";
+        String line;
+        while ((line=bf.readLine())!=null) {
+          outStr += line;
+        }
+        return outStr;
+     }
 
 }
