@@ -6,6 +6,7 @@ import bac.settings.Settings;
 import bac.cron.Cron;
 
 import java.util.HashMap;
+import java.util.Arrays;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 
@@ -74,6 +75,21 @@ public final class Peers {
 
      }
    };
+   
+   public static void SendToAllPeers(JSONObject request) {
+			
+			Peer[] ListOfPeers;
+			synchronized (peers) {				
+				ListOfPeers = peers.values().toArray(new Peer[0]);				
+			}
+			
+			Arrays.sort(ListOfPeers);
+			for (Peer peer : ListOfPeers) {
+				if (peer.PeerState == PEER_STATE_CONNECTED) {					
+					peer.SendJsonQueryToPeer(request);					
+				}				
+			}			
+	}
 
 
 }
