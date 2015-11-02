@@ -76,7 +76,7 @@ public final class Peers {
      }
    };
    
-   public static void SendToAllPeers(JSONObject request) {
+   public void SendToAllPeers(JSONObject request) {
 			
 			Peer[] ListOfPeers;
 			synchronized (peers) {				
@@ -85,7 +85,8 @@ public final class Peers {
 			
 			Arrays.sort(ListOfPeers);
 			for (Peer peer : ListOfPeers) {
-				if (peer.PeerState == PEER_STATE_CONNECTED) {					
+				if (peer.PeerState == PEER_STATE_CONNECTED) {	
+				   request.put("serverURL", "http://"+peer.PeerAnnouncedAddress+"/api");				
 					peer.SendJsonQueryToPeer(request);					
 				}				
 			}			
