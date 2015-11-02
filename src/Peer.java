@@ -55,7 +55,7 @@ public class Peer  {
 			}				
 		}
 		
-		static Peer GetRandomPeer( int PeerStateFilter ) {
+		public static Peer GetRandomPeer( int PeerStateFilter ) {
 			
 			synchronized (Peers.peers) {
             Collection<Peer> PeersList = ((HashMap<String, Peer>)Peers.peers.clone()).values();
@@ -72,9 +72,11 @@ public class Peer  {
 			}			
 		}
 		
-      JSONObject SendJsonQueryToPeer(JSONObject request) {
-         JSONObject response = APIServlet.SendJsonQuery(request);
+      public JSONObject SendJsonQueryToPeer(JSONObject request) {
+      	APIServlet listenner = new APIServlet();         
+         JSONObject response = listenner.SendJsonQuery(request);
          if (response != null) {
+         	Helper.logMessage("Peer response: "+response.toString());
          	JSONObject Data = (JSONObject) response.get("Data");
          	if (Data != null) {
               return Data;
