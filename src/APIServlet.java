@@ -5,6 +5,8 @@ import bac.peers.Peers;
 import bac.peers.Peer;
 import bac.crypto.Crypto;
 import bac.settings.Settings;
+import bac.transaction.Transaction;
+import bac.transaction.Transactions;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
@@ -75,6 +77,16 @@ public final class APIServlet extends HttpServlet {
 				case "GetAllPeerDetails": {    
 				  AjaxResponse = AjaxGetAllPeerDetails(ajaxRequest);   
             } break;
+            
+            
+            // Hidden requests
+				case "ProcessTransactions": {    
+				  AjaxResponse = AjaxProcessTransactions(ajaxRequest);   
+            } break;
+				case "GetUnconfirmedTransactions": {    
+				  AjaxResponse = AjaxGetUnconfirmedTransactions(ajaxRequest);   
+            } break;
+            
             default: {            	
             	AjaxResponse.put("timestamp",System.currentTimeMillis());
 				   AjaxResponse.put("error","Bad requestType.");
@@ -93,7 +105,7 @@ public final class APIServlet extends HttpServlet {
     }
     
     
-	 public static JSONObject SendJsonQuery(JSONObject request) {
+	 public synchronized JSONObject SendJsonQuery(JSONObject request) {
 	    
 	    JSONObject JSONresponse = new JSONObject();
 	    
@@ -224,6 +236,49 @@ public final class APIServlet extends HttpServlet {
 		 }              
       
        return response;
-    }    
+    }
+    
+    private JSONObject AjaxProcessTransactions( JSONObject ajaxRequest ) {
+    	
+       JSONObject response = new JSONObject();
+       
+		 try { 				 
+				 Transactions.getInstance().processTransactions((JSONArray)ajaxRequest.get("ValidatedTransactions"), false );
+		       response.put("timestamp",System.currentTimeMillis());
+		       response.put("Accepted", true);
+		 } catch (Exception e) {
+				     Helper.logMessage("Response error. (AjaxProcessTransactions)");
+				     response.put("timestamp",System.currentTimeMillis());
+				     response.put("error",1);
+		 }              
+      
+       return response;
+    }
+    
+    private JSONObject AjaxGetUnconfirmedTransactions( JSONObject ajaxRequest ) {
+    	
+       JSONObject response = new JSONObject();
+       JSONArray UnconfirmedTransactions = new JSONArray();      
+       
+		 try { 
+				 synchronized (Transactions.UnconfirmedTransactions) {
+				 	 for (Map.Entry<String, Transaction> UnconfirmedTransactionsEntry : Transactions.UnconfirmedTransactions.entrySet()) {				
+						 UnconfirmedTransactions.add(UnconfirmedTransactionsEntry.getValue().GetTransaction());					
+					 }
+				 }	 		 					
+		       response.put("timestamp",System.currentTimeMillis());
+		       response.put("UnconfirmedTransactions", UnconfirmedTransactions);				 
+
+		       response.put("timestamp",System.currentTimeMillis());
+		       response.put("Accepted", true);
+		 } catch (Exception e) {
+				     Helper.logMessage("Response error. (AjaxProcessTransactions)");
+				     response.put("timestamp",System.currentTimeMillis());
+				     response.put("error",1);
+		 }              
+      
+       return response;
+    }
+          
         
 }
