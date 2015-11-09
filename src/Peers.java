@@ -21,6 +21,15 @@ public final class Peers {
 
    public static HashMap<String, Peer> peers = new HashMap<>();
    public static int PeersCounter;
+   
+   private static Peers instance = null;     
+   
+    public static Peers getInstance() {
+      if(instance == null) {
+         instance = new Peers();
+      }
+      return instance;
+    }   
 
 	public static void init(){ 
        PeersCounter=0;
@@ -83,7 +92,6 @@ public final class Peers {
 				ListOfPeers = peers.values().toArray(new Peer[0]);				
 			}
 			
-			Arrays.sort(ListOfPeers);
 			for (Peer peer : ListOfPeers) {
 				if (peer.PeerState == PEER_STATE_CONNECTED) {	
 				   request.put("serverURL", "http://"+peer.PeerAnnouncedAddress+"/api");				

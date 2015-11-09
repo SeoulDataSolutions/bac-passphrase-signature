@@ -28,6 +28,8 @@ import java.io.*;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.GZIPInputStream;
 
+import java.net.URI;
+
 
 public final class Helper {
 
@@ -293,5 +295,15 @@ public final class Helper {
         }
         return outStr;
      }
+     
+	  public static String GetAnnouncementHost(String announcement) {
+	     try {
+		    URI uri = new URI("my://" + announcement); 
+		    return uri.getHost();
+		  } catch (Exception e) {
+          return null;		  
+		  }
+	  } 
+     
 
 }

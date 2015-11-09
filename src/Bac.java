@@ -36,7 +36,7 @@ public final class Bac  {
             Settings.init();            
             Database.init();
             Api.init();
-            Peers.init();
+            Peers.getInstance().init();
             Transactions.getInstance().init();  
             Helper.logMessage("Bac server " + Settings.VERSION + " started successfully."); 
             Test.StartTests();

@@ -51,7 +51,9 @@ public final class Test  {
             account.SetUnconfirmedBalance(20000);
             Accounts.getInstance().PutAccount(account);
             account = Accounts.getInstance().GetAccount("BrcLFiUk8SZFdjDNvFAg3NZZmqx2Fdy");
-            
+ 
+ 
+ /*        
             // Transaction test
             Thread.sleep(5550);
             
@@ -75,6 +77,9 @@ public final class Test  {
 				
 				Peers peers = new Peers();
 				peers.SendToAllPeers(peerRequest);
+				
+*/
+				
 	     } catch (Exception e) {
 		     Helper.logMessage("Test fail. "+e.toString());
 		  } 

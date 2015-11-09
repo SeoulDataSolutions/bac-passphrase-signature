@@ -25,10 +25,17 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.MalformedURLException;
 
+
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.util.StringContentProvider;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import java.net.*; 
+import java.net.InetSocketAddress;
 
 public final class APIServlet extends HttpServlet {
 
@@ -62,37 +69,44 @@ public final class APIServlet extends HttpServlet {
        
         JSONObject AjaxResponse = new JSONObject();
 
-        Helper.logMessage("API request:"+ajaxRequest.toString());
-
-        switch ( (String) ajaxRequest.get("requestType") ) {					
-				case "GetAddress": {    
-				  AjaxResponse = AjaxGetAddress(ajaxRequest);   
-            } break;
-				case "GetInfo": {    
-				  AjaxResponse = AjaxGetInfo(ajaxRequest);   
-            } break;
-				case "GetPeers": {    
-				  AjaxResponse = AjaxGetPeers(ajaxRequest);   
-            } break;
-				case "GetAllPeerDetails": {    
-				  AjaxResponse = AjaxGetAllPeerDetails(ajaxRequest);   
-            } break;
-            
-            
-            // Hidden requests
-				case "ProcessTransactions": {    
-				  AjaxResponse = AjaxProcessTransactions(ajaxRequest);   
-            } break;
-				case "GetUnconfirmedTransactions": {    
-				  AjaxResponse = AjaxGetUnconfirmedTransactions(ajaxRequest);   
-            } break;
-            
-            default: {            	
-            	AjaxResponse.put("timestamp",System.currentTimeMillis());
-				   AjaxResponse.put("error","Bad requestType.");
-            } break;
-        }                       
-                
+        Helper.logMessage("API request:"+ajaxRequest.toString()+" Address:"+Helper.GetAnnouncementHost((String) ajaxRequest.get("AnnouncedAddress"))+" Remote:"+request.getRemoteAddr());         
+         
+         if (( ajaxRequest.get("AnnouncedAddress") == null ) || 
+              (Helper.GetAnnouncementHost((String) ajaxRequest.get("AnnouncedAddress")).equals(request.getRemoteAddr()) ) ) {
+        
+	        switch ( (String) ajaxRequest.get("requestType") ) {					
+					case "GetAddress": {    
+					  AjaxResponse = AjaxGetAddress(ajaxRequest);   
+	            } break;
+					case "GetInfo": {    
+					  AjaxResponse = AjaxGetInfo(ajaxRequest);   
+	            } break;
+					case "GetPeers": {    
+					  AjaxResponse = AjaxGetPeers(ajaxRequest);   
+	            } break;
+					case "GetAllPeerDetails": {    
+					  AjaxResponse = AjaxGetAllPeerDetails(ajaxRequest);   
+	            } break;
+	            
+	            
+	            // Hidden requests
+					case "ProcessTransactions": {    
+					  AjaxResponse = AjaxProcessTransactions(ajaxRequest);   
+	            } break;
+					case "GetUnconfirmedTransactions": {    
+					  AjaxResponse = AjaxGetUnconfirmedTransactions(ajaxRequest);   
+	            } break;
+					                       
+	            
+	            default: {            	
+	            	AjaxResponse.put("timestamp",System.currentTimeMillis());
+					   AjaxResponse.put("error","Bad requestType.");
+	            } break;
+	        }                       
+        } else {
+         	AjaxResponse.put("timestamp",System.currentTimeMillis());
+			   AjaxResponse.put("error","Bad announced address.");        
+        }                
         response.setContentType("text");
         PrintWriter ServletOutputStream = response.getWriter();  
         Helper.logMessage("Response:"+AjaxResponse.toString());      
@@ -112,36 +126,25 @@ public final class APIServlet extends HttpServlet {
        Helper.logMessage("SendJsonQuery:"+request.toString());	    
 	    
 	    try {
-					URL object=new URL((String)request.get("serverURL"));
-					HttpURLConnection con = (HttpURLConnection) object.openConnection();
-					con.setDoOutput(true);
-					con.setDoInput(true);
-					con.setRequestProperty("Content-Type", "application/json");
-					con.setRequestProperty("Accept", "application/json");
-					con.setRequestMethod("POST");
-					OutputStreamWriter wr = new OutputStreamWriter(con.getOutputStream());
-					wr.write(request.toString());
-					wr.flush();
-					StringBuilder sb = new StringBuilder();  
-					int HttpResult = con.getResponseCode(); 
-					if ( HttpResult == HttpURLConnection.HTTP_OK ) {
-					    BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream(),"utf-8"));  
-					    String line = null;  
-					    while ((line = br.readLine()) != null) {  
-					        sb.append(line + "\n");  
-					    }  
-					    br.close();  
+	    	
+	    	HttpClient client = new HttpClient();
+	    	client.setBindAddress(new InetSocketAddress( InetAddress.getByName(Settings.APIhost) , 0 )); 
+         client.start();
+	    	ContentResponse response = client.POST((String)request.get("serverURL"))
+        .content(new StringContentProvider(request.toString()) , "application/json; charset=UTF-8")
+        .send();  
+                    
+        client.stop();
 					    try {
-					          JSONresponse.put("Data",(JSONObject)new JSONParser().parse(sb.toString()));
+					          JSONresponse.put("Data",(JSONObject)new JSONParser().parse(response.getContentAsString()));
 					    } catch (Exception e) {
 					          JSONresponse.put("Error","Failed parsing returned JSON object.");
 					    }
-	           } else {
-	                     JSONresponse.put("Error","HTTP error.");  
-	                  }  
+	           
+	                  
 	
-	        } catch (IOException e) {
-	             JSONresponse.put("Error","IOException error.");
+	        } catch (Exception e) {
+	             JSONresponse.put("Error","Communication error.");
 	        }
 	        	     
 	    return JSONresponse;
@@ -200,9 +203,10 @@ public final class APIServlet extends HttpServlet {
 				 synchronized (Peers.peers) {					
 				    PeersAnnouncements = ((HashMap<String, Peer>)Peers.peers.clone()).keySet();					
 				 }
-				 for (String PeerAnnouncement : PeersAnnouncements ) {					
-					PeersList.add(PeerAnnouncement);					
-				 }		
+			 	 for (Map.Entry<String, Peer> PeerEntry : Peers.peers.entrySet()) {				
+					 Peer peer = PeerEntry.getValue();					 
+					 PeersList.add(peer.PeerAnnouncedAddress);					
+				 }
 		       response.put("timestamp",System.currentTimeMillis());
 		       response.put("PeersList", PeersList);
 		 } catch (Exception e) {

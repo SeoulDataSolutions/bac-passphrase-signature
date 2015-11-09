@@ -31,12 +31,12 @@ public class Peer  {
 				if ( announcedAddress.equals(Peers.MyAnnouncedAddress) ) {					
 					return null;					
 				}				
-				Peer peer = Peers.peers.get(announcedAddress);
+				Peer peer = Peers.peers.get(Helper.GetAnnouncementHost(announcedAddress));
 				if (peer == null) {					
 					peer = new Peer(announcedAddress);
 					peer.PeerID = ++Peers.PeersCounter;
 					peer.PeerState = Peers.PEER_STATE_DISCONNECTED;
-					Peers.peers.put(announcedAddress,peer);					
+					Peers.peers.put(Helper.GetAnnouncementHost(announcedAddress),peer);					
 				}				
 				return peer;				
 			}			
@@ -112,6 +112,7 @@ public class Peer  {
 		}
 		
 		void PeerDisconnect() {
+			Helper.logMessage("Peer ("+PeerAnnouncedAddress+") disconnected.");
 			PeerState = Peers.PEER_STATE_DISCONNECTED;
 		}
       					
