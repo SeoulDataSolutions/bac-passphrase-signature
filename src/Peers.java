@@ -68,8 +68,7 @@ public final class Peers {
 				 JSONObject request = new JSONObject();
 			    request.put("requestType", "GetPeers");						
 			    request.put("serverURL", "http://"+peer.PeerAnnouncedAddress+"/api");
-			    JSONObject response = peer.SendJsonQueryToPeer(request);
-			    Helper.logMessage("Find peers answer:"+response.toString());								
+			    JSONObject response = peer.SendJsonQueryToPeer(request);							
              JSONArray PeersList = (JSONArray)response.get("PeersList");
 				 for (int i = 0; i < PeersList.size(); i++) {								
 					 String announcedAddress = ((String)PeersList.get(i)).trim(); 

@@ -7,6 +7,7 @@ import bac.crypto.Crypto;
 import bac.settings.Settings;
 import bac.transaction.Transaction;
 import bac.transaction.Transactions;
+import bac.blockchain.Forge;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
@@ -52,8 +53,7 @@ public final class APIServlet extends HttpServlet {
     
     public void doPost(HttpServletRequest request, HttpServletResponse response)
     
-      throws ServletException, IOException {
-      	Helper.logMessage("API request received.");      
+      throws ServletException, IOException {     
         JSONObject ajaxRequest = new JSONObject(); 
 		  try {
           ajaxRequest = (JSONObject)new JSONParser().parse(request.getReader());
@@ -69,7 +69,7 @@ public final class APIServlet extends HttpServlet {
        
         JSONObject AjaxResponse = new JSONObject();
 
-        Helper.logMessage("API request:"+ajaxRequest.toString()+" Address:"+Helper.GetAnnouncementHost((String) ajaxRequest.get("AnnouncedAddress"))+" Remote:"+request.getRemoteAddr());         
+        // Helper.logMessage("API request:"+ajaxRequest.toString()+" Address:"+Helper.GetAnnouncementHost((String) ajaxRequest.get("AnnouncedAddress"))+" Remote:"+request.getRemoteAddr());         
          
          if (( ajaxRequest.get("AnnouncedAddress") == null ) || 
               (Helper.GetAnnouncementHost((String) ajaxRequest.get("AnnouncedAddress")).equals(request.getRemoteAddr()) ) ) {
@@ -87,6 +87,10 @@ public final class APIServlet extends HttpServlet {
 					case "GetAllPeerDetails": {    
 					  AjaxResponse = AjaxGetAllPeerDetails(ajaxRequest);   
 	            } break;
+					case "GetNodeForgeSignatures": {    
+					  AjaxResponse = AjaxGetNodeForgeSignatures(ajaxRequest);   
+	            } break;
+	            
 	            
 	            
 	            // Hidden requests
@@ -96,7 +100,9 @@ public final class APIServlet extends HttpServlet {
 					case "GetUnconfirmedTransactions": {    
 					  AjaxResponse = AjaxGetUnconfirmedTransactions(ajaxRequest);   
 	            } break;
-					                       
+					case "NewNFSignHash": {    
+					  AjaxResponse = AjaxNewNFSignHash(ajaxRequest);   
+	            } break;                        
 	            
 	            default: {            	
 	            	AjaxResponse.put("timestamp",System.currentTimeMillis());
@@ -109,7 +115,7 @@ public final class APIServlet extends HttpServlet {
         }                
         response.setContentType("text");
         PrintWriter ServletOutputStream = response.getWriter();  
-        Helper.logMessage("Response:"+AjaxResponse.toString());      
+        // Helper.logMessage("Response:"+AjaxResponse.toString());      
         ServletOutputStream.print(AjaxResponse.toString());
     }
     
@@ -123,29 +129,27 @@ public final class APIServlet extends HttpServlet {
 	    
 	    JSONObject JSONresponse = new JSONObject();
 	    
-       Helper.logMessage("SendJsonQuery:"+request.toString());	    
+       // Helper.logMessage("SendJsonQuery:"+request.toString());	    
 	    
 	    try {
 	    	
-	    	HttpClient client = new HttpClient();
-	    	client.setBindAddress(new InetSocketAddress( InetAddress.getByName(Settings.APIhost) , 0 )); 
-         client.start();
-	    	ContentResponse response = client.POST((String)request.get("serverURL"))
-        .content(new StringContentProvider(request.toString()) , "application/json; charset=UTF-8")
-        .send();  
-                    
-        client.stop();
-					    try {
-					          JSONresponse.put("Data",(JSONObject)new JSONParser().parse(response.getContentAsString()));
-					    } catch (Exception e) {
-					          JSONresponse.put("Error","Failed parsing returned JSON object.");
-					    }
-	           
-	                  
-	
-	        } catch (Exception e) {
+		    	HttpClient client = new HttpClient();
+		    	client.setBindAddress(new InetSocketAddress( InetAddress.getByName(Settings.APIhost) , 0 )); 
+	         client.start();
+		    	ContentResponse response = client.POST((String)request.get("serverURL"))
+	        .content(new StringContentProvider(request.toString()) , "application/json; charset=UTF-8")
+	        .send();                       
+	        client.stop();
+	        if ( response.getStatus() == HttpURLConnection.HTTP_OK ) {
+						    try {
+						          JSONresponse.put("Data",(JSONObject)new JSONParser().parse(response.getContentAsString()));
+						    } catch (Exception e) {
+						          JSONresponse.put("Error","Failed parsing returned JSON object.");
+						    }		           
+		     }             	
+	    } catch (Exception e) {
 	             JSONresponse.put("Error","Communication error.");
-	        }
+	    }
 	        	     
 	    return JSONresponse;
 	 }    
@@ -283,6 +287,39 @@ public final class APIServlet extends HttpServlet {
       
        return response;
     }
-          
+ 
+     private JSONObject AjaxNewNFSignHash( JSONObject ajaxRequest ) {
+    	
+       JSONObject response = new JSONObject();
+       
+		 try { 				 
+				 Forge.getInstance().NewNFSignHash((String)ajaxRequest.get("NodeForgeSignaturesHash"), (String)ajaxRequest.get("AnnouncedAddress") );
+		       response.put("timestamp",System.currentTimeMillis());
+		       response.put("Accepted", true);
+		 } catch (Exception e) {
+				     Helper.logMessage("Response error. (AjaxNewNFSignHash)");
+				     response.put("timestamp",System.currentTimeMillis());
+				     response.put("error",1);
+		 }              
+      
+       return response;
+    }
+
+                    
+private JSONObject AjaxGetNodeForgeSignatures( JSONObject ajaxRequest ) {
+    	
+       Helper.logMessage("Accept request:"+ajaxRequest.toString());    	
+       JSONObject response = new JSONObject();
+		 try {       
+		       response.put("timestamp",System.currentTimeMillis());
+		       response.put("ForgeSignatures", Forge.GetNodeForgeSignatures() );
+		 } catch (Exception e) {
+				     Helper.logMessage("Response error. (AjaxGetNodeForgeSignatures)");
+				     response.put("timestamp",System.currentTimeMillis());
+				     response.put("error",1);
+		 }              
+      
+       return response;
+    }
         
 }

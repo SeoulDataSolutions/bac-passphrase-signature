@@ -12,6 +12,7 @@ import bac.account.Accounts;
 import bac.account.Account;
 import bac.transaction.Transactions;
 import bac.transaction.Transaction;
+import bac.blockchain.Forge;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
@@ -38,6 +39,7 @@ public final class Bac  {
             Api.init();
             Peers.getInstance().init();
             Transactions.getInstance().init();  
+            Forge.getInstance().init();
             Helper.logMessage("Bac server " + Settings.VERSION + " started successfully."); 
             Test.StartTests();
 		} catch (Exception e) {

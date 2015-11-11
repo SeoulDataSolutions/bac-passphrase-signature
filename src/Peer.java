@@ -76,7 +76,7 @@ public class Peer  {
       	APIServlet listenner = new APIServlet();         
          JSONObject response = listenner.SendJsonQuery(request);
          if (response != null) {
-         	Helper.logMessage("Peer response: "+response.toString());
+         	// Helper.logMessage("Peer response: "+response.toString());
          	JSONObject Data = (JSONObject) response.get("Data");
          	if (Data != null) {
               return Data;
@@ -99,7 +99,7 @@ public class Peer  {
 					  String ConnectedAnnouncedAddress = (String) response.get("AnnouncedAddress");
 					  if ( ConnectedAnnouncedAddress.length() > 0 ) {
 					      PeerState = Peers.PEER_STATE_CONNECTED;
-					      Helper.logMessage("Peer connected. "+response.toString()); 				  
+					      Helper.logMessage("Peer connected. "+ConnectedAnnouncedAddress); 				  
 					  } else {
 					      Helper.logMessage("Bad or missing AnnouncedAddress."+response.toString()); 
 					  }    
