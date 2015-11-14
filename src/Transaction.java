@@ -29,7 +29,7 @@ public final class Transaction implements Serializable {
 			
 	      this.version=1;
 	      this.type=type;
-			this.timestamp=Helper.getEpochTime(System.currentTimeMillis());
+			this.timestamp=Helper.getEpochTimestamp();
 			this.deadline=deadline;
 			this.senderPublicKey=senderPublicKey;
 			this.recipient=recipient;

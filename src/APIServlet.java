@@ -102,20 +102,19 @@ public final class APIServlet extends HttpServlet {
 	            } break;
 					case "NewNFSignHash": {    
 					  AjaxResponse = AjaxNewNFSignHash(ajaxRequest);   
-	            } break;                        
-	            
+	            } break;                        	            
 	            default: {            	
-	            	AjaxResponse.put("timestamp",System.currentTimeMillis());
 					   AjaxResponse.put("error","Bad requestType.");
 	            } break;
 	        }                       
         } else {
-         	AjaxResponse.put("timestamp",System.currentTimeMillis());
+         	
 			   AjaxResponse.put("error","Bad announced address.");        
         }                
         response.setContentType("text");
         PrintWriter ServletOutputStream = response.getWriter();  
-        // Helper.logMessage("Response:"+AjaxResponse.toString());      
+        // Helper.logMessage("Response:"+AjaxResponse.toString());  
+        AjaxResponse.put("timestamp",Helper.getEpochTimestamp());    
         ServletOutputStream.print(AjaxResponse.toString());
     }
     
@@ -134,6 +133,7 @@ public final class APIServlet extends HttpServlet {
 	    try {
 	    	
 		    	HttpClient client = new HttpClient();
+		    	request.put("timestamp",Helper.getEpochTimestamp());
 		    	client.setBindAddress(new InetSocketAddress( InetAddress.getByName(Settings.APIhost) , 0 )); 
 	         client.start();
 		    	ContentResponse response = client.POST((String)request.get("serverURL"))
@@ -161,14 +161,12 @@ public final class APIServlet extends HttpServlet {
        byte[] PublicKey = new byte[32];                    
        PublicKey = Crypto.getPublicKey((String)ajaxRequest.get("secretPhrase"));
 		 try {       
-		       response.put("timestamp",System.currentTimeMillis());
 		       response.put("PublicKey", Helper.Base58encode((byte[]) PublicKey));
 		       response.put("BAC Address", Helper.PublicKeyToAddress((byte[]) PublicKey));
 		       response.put("secretPhrase", ajaxRequest.get("secretPhrase"));
 		       response.put("requestType", ajaxRequest.get("requestType"));
 		 } catch (Exception e) {
 				     Helper.logMessage("Response error. (AjaxGetAddress)");
-				     response.put("timestamp",System.currentTimeMillis());
 				     response.put("error",1);
 		 }              
       
@@ -184,13 +182,11 @@ public final class APIServlet extends HttpServlet {
        }
        
 		 try {       
-		       response.put("timestamp",System.currentTimeMillis());
 		       response.put("AnnouncedAddress", Peers.MyAnnouncedAddress);
 		       response.put("Version", Settings.VERSION);
 		       response.put("requestType", ajaxRequest.get("requestType"));
 		 } catch (Exception e) {
 				     Helper.logMessage("Response error. (AjaxGetAddress)");
-				     response.put("timestamp",System.currentTimeMillis());
 				     response.put("error",1);
 		 }              
       
@@ -211,14 +207,11 @@ public final class APIServlet extends HttpServlet {
 					 Peer peer = PeerEntry.getValue();					 
 					 PeersList.add(peer.PeerAnnouncedAddress);					
 				 }
-		       response.put("timestamp",System.currentTimeMillis());
 		       response.put("PeersList", PeersList);
 		 } catch (Exception e) {
 				     Helper.logMessage("Response error. (AjaxGetPeers)");
-				     response.put("timestamp",System.currentTimeMillis());
 				     response.put("error",1);
 		 }              
-      
        return response;
     }    
         
@@ -235,11 +228,9 @@ public final class APIServlet extends HttpServlet {
 						 PeersList.add( "ID:"+peer.PeerID+" Announce Address:"+peer.PeerAnnouncedAddress+" State:"+peer.PeerState );					
 					 }
 				 }	 		 					
-		       response.put("timestamp",System.currentTimeMillis());
 		       response.put("PeersList", PeersList);
 		 } catch (Exception e) {
 				     Helper.logMessage("Response error. (AjaxGetAllPeerDetails)");
-				     response.put("timestamp",System.currentTimeMillis());
 				     response.put("error",1);
 		 }              
       
@@ -252,11 +243,9 @@ public final class APIServlet extends HttpServlet {
        
 		 try { 				 
 				 Transactions.getInstance().processTransactions((JSONArray)ajaxRequest.get("ValidatedTransactions"), false );
-		       response.put("timestamp",System.currentTimeMillis());
 		       response.put("Accepted", true);
 		 } catch (Exception e) {
 				     Helper.logMessage("Response error. (AjaxProcessTransactions)");
-				     response.put("timestamp",System.currentTimeMillis());
 				     response.put("error",1);
 		 }              
       
@@ -274,14 +263,11 @@ public final class APIServlet extends HttpServlet {
 						 UnconfirmedTransactions.add(UnconfirmedTransactionsEntry.getValue().GetTransaction());					
 					 }
 				 }	 		 					
-		       response.put("timestamp",System.currentTimeMillis());
 		       response.put("UnconfirmedTransactions", UnconfirmedTransactions);				 
 
-		       response.put("timestamp",System.currentTimeMillis());
 		       response.put("Accepted", true);
 		 } catch (Exception e) {
 				     Helper.logMessage("Response error. (AjaxProcessTransactions)");
-				     response.put("timestamp",System.currentTimeMillis());
 				     response.put("error",1);
 		 }              
       
@@ -294,11 +280,9 @@ public final class APIServlet extends HttpServlet {
        
 		 try { 				 
 				 Forge.getInstance().NewNFSignHash((String)ajaxRequest.get("NodeForgeSignaturesHash"), (String)ajaxRequest.get("AnnouncedAddress") );
-		       response.put("timestamp",System.currentTimeMillis());
 		       response.put("Accepted", true);
 		 } catch (Exception e) {
 				     Helper.logMessage("Response error. (AjaxNewNFSignHash)");
-				     response.put("timestamp",System.currentTimeMillis());
 				     response.put("error",1);
 		 }              
       
@@ -311,11 +295,9 @@ private JSONObject AjaxGetNodeForgeSignatures( JSONObject ajaxRequest ) {
        Helper.logMessage("Accept request:"+ajaxRequest.toString());    	
        JSONObject response = new JSONObject();
 		 try {       
-		       response.put("timestamp",System.currentTimeMillis());
 		       response.put("ForgeSignatures", Forge.GetNodeForgeSignatures() );
 		 } catch (Exception e) {
 				     Helper.logMessage("Response error. (AjaxGetNodeForgeSignatures)");
-				     response.put("timestamp",System.currentTimeMillis());
 				     response.put("error",1);
 		 }              
       

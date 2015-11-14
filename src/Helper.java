@@ -114,6 +114,10 @@ public final class Helper {
 		
 	}
 	
+   public static int getEpochTimestamp() {	
+	
+	   return getEpochTime(System.currentTimeMillis());
+	}
 
 
 	public static String Base58encode(byte[] input) {

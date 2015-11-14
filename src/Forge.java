@@ -188,7 +188,7 @@ public final class Forge {
                Helper.logMessage("Error in ForgeSignature verify.");        
         }
        MyForgeSignature.NodeAnnouncement = Peers.MyAnnouncedAddress;
-       MyForgeSignature.FSvalidity = Helper.getEpochTime(System.currentTimeMillis())+120; 
+       MyForgeSignature.FSvalidity = Helper.getEpochTimestamp()+120; 
 
     }      
     
