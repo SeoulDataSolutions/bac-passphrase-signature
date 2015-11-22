@@ -18,6 +18,7 @@ public class Peer  {
 
 	public int PeerID;
 	public int PeerState;
+	public int ConnectionTimestamp;
 	
    public String PeerAnnouncedAddress;
 
@@ -36,6 +37,7 @@ public class Peer  {
 					peer = new Peer(announcedAddress);
 					peer.PeerID = ++Peers.PeersCounter;
 					peer.PeerState = Peers.PEER_STATE_DISCONNECTED;
+					peer.ConnectionTimestamp = 0;
 					Peers.peers.put(Helper.GetAnnouncementHost(announcedAddress),peer);					
 				}				
 				return peer;				
@@ -98,22 +100,29 @@ public class Peer  {
 				if (response != null) {			  
 					  String ConnectedAnnouncedAddress = (String) response.get("AnnouncedAddress");
 					  if ( ConnectedAnnouncedAddress.length() > 0 ) {
-					      PeerState = Peers.PEER_STATE_CONNECTED;
-					      Helper.logMessage("Peer connected. "+ConnectedAnnouncedAddress); 				  
+					      PeerState = Peers.PEER_STATE_UNSETTLED;
+					      ConnectionTimestamp = Helper.getEpochTimestamp();
+					      Helper.logMessage("Peer connected.(UNSETTLED)"+ConnectedAnnouncedAddress); 				  
 					  } else {
 					      Helper.logMessage("Bad or missing AnnouncedAddress."+response.toString()); 
 					  }    
 	         } else {
-	            Helper.logMessage("Peer connection fail. "+request.toString());
+	            // Helper.logMessage("Peer connection fail. "+request.toString());
 	         }     	
 		  } catch (Exception e) { 
 		     Helper.logMessage("Peer connection error.");
 		  }		 		 								
 		}
 		
-		void PeerDisconnect() {
-			Helper.logMessage("Peer ("+PeerAnnouncedAddress+") disconnected.");
-			PeerState = Peers.PEER_STATE_DISCONNECTED;
+		void PeerDisconnect() {			
+			if ( PeerState == Peers.PEER_STATE_DISCONNECTED ) {
+				Helper.logMessage("Peer ("+PeerAnnouncedAddress+") offline.");
+				PeerState = Peers.PEER_STATE_OFFLINE;						
+			} else {
+				Helper.logMessage("Peer ("+PeerAnnouncedAddress+") disconnected.");
+				PeerState = Peers.PEER_STATE_DISCONNECTED;			
+			} 
+			ConnectionTimestamp = 0;
 		}
       					
 }

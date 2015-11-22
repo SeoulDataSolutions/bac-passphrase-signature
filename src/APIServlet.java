@@ -8,6 +8,7 @@ import bac.settings.Settings;
 import bac.transaction.Transaction;
 import bac.transaction.Transactions;
 import bac.blockchain.Forge;
+import bac.blockchain.ForgeBlock;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
@@ -86,11 +87,7 @@ public final class APIServlet extends HttpServlet {
 	            } break;
 					case "GetAllPeerDetails": {    
 					  AjaxResponse = AjaxGetAllPeerDetails(ajaxRequest);   
-	            } break;
-					case "GetNodeForgeSignatures": {    
-					  AjaxResponse = AjaxGetNodeForgeSignatures(ajaxRequest);   
-	            } break;
-	            
+	            } break;            
 	            
 	            
 	            // Hidden requests
@@ -100,9 +97,16 @@ public final class APIServlet extends HttpServlet {
 					case "GetUnconfirmedTransactions": {    
 					  AjaxResponse = AjaxGetUnconfirmedTransactions(ajaxRequest);   
 	            } break;
-					case "NewNFSignHash": {    
-					  AjaxResponse = AjaxNewNFSignHash(ajaxRequest);   
-	            } break;                        	            
+					case "NewFBID": {    
+					  AjaxResponse = AjaxNewFBID(ajaxRequest);   
+	            } break;          
+	            
+	            // Test requests
+					case "CreateTestTransaction": {    
+					  AjaxResponse = AjaxCreateTestTransaction(ajaxRequest);   
+	            } break;
+	            
+	                          	            
 	            default: {            	
 					   AjaxResponse.put("error","Bad requestType.");
 	            } break;
@@ -178,7 +182,15 @@ public final class APIServlet extends HttpServlet {
        JSONObject response = new JSONObject();
        
        if ( ajaxRequest.get("AnnouncedAddress").toString().length() > 0 ) {
-           Peer.AddPeer((String)ajaxRequest.get("AnnouncedAddress"));       
+
+				Peer peer = Peers.peers.get(Helper.GetAnnouncementHost((String)ajaxRequest.get("AnnouncedAddress")));
+				if (peer == null) {
+				  Peer.AddPeer((String)ajaxRequest.get("AnnouncedAddress"));
+				} else {
+					if (peer.PeerState == Peers.PEER_STATE_OFFLINE) {
+					  peer.PeerState = Peers.PEER_STATE_DISCONNECTED;
+					}				
+				}       	
        }
        
 		 try {       
@@ -237,7 +249,7 @@ public final class APIServlet extends HttpServlet {
        return response;
     }
     
-    private JSONObject AjaxProcessTransactions( JSONObject ajaxRequest ) {
+    private JSONObject AjaxProcessTransactions( JSONObject ajaxRequest ) {   	
     	
        JSONObject response = new JSONObject();
        
@@ -273,31 +285,70 @@ public final class APIServlet extends HttpServlet {
       
        return response;
     }
- 
-     private JSONObject AjaxNewNFSignHash( JSONObject ajaxRequest ) {
+
+
+     private JSONObject AjaxNewFBID( JSONObject ajaxRequest ) {
     	
        JSONObject response = new JSONObject();
        
-		 try { 				 
-				 Forge.getInstance().NewNFSignHash((String)ajaxRequest.get("NodeForgeSignaturesHash"), (String)ajaxRequest.get("AnnouncedAddress") );
-		       response.put("Accepted", true);
+		 try {
+		 	    ForgeBlock forgeblock = Forge.getInstance().GetForgeBlock(ForgeBlock.FORGEBLOCK_FORGING);
+		 	    if (forgeblock != null) {
+						 if (forgeblock.NewFBID(
+						        (String)ajaxRequest.get("ForgeFBID"), 
+						        (String)ajaxRequest.get("ForgeFBSign"),
+						        (String)ajaxRequest.get("NodePubKey"),						        
+						        (String)ajaxRequest.get("AnnouncedAddress") ))        {
+						   response.put("Accepted", true);
+						 } else {
+						   response.put("Accepted", false );
+						 }
+		 	    
+		 	    } else {
+					    response.put("Accepted", false );
+				}			 
+		       
 		 } catch (Exception e) {
-				     Helper.logMessage("Response error. (AjaxNewNFSignHash)");
+				     Helper.logMessage("Response error. (AjaxNewFBID)"+response.toString());
 				     response.put("error",1);
 		 }              
       
        return response;
     }
 
-                    
-private JSONObject AjaxGetNodeForgeSignatures( JSONObject ajaxRequest ) {
+
+
+                
+private JSONObject AjaxCreateTestTransaction( JSONObject ajaxRequest ) {
     	
-       Helper.logMessage("Accept request:"+ajaxRequest.toString());    	
+       Helper.logMessage("Test Transaction Created");    	
        JSONObject response = new JSONObject();
-		 try {       
-		       response.put("ForgeSignatures", Forge.GetNodeForgeSignatures() );
+		 try {                  
+            
+
+            Helper.logMessage("Recipient address: "+Helper.PublicKeyToAddress(Crypto.getPublicKey("RecipientSecretPhrase")));
+            // B3yFMMk6zsw7ZsEhzbA9nwSb7cxZw2fu
+
+            Transaction transaction = new Transaction(
+                  Transaction.TYPE_ORDINARY_PAYMENT, ( 5 * 60 ), 
+                  "7z1pmi6XifvGMhV7T1AxJsP8UsSVE5mP3SHKuDqd83xw", 
+                  "B3yFMMk6zsw7ZsEhzbA9nwSb7cxZw2fu", 1033, 101, null);
+				transaction.sign("secretPhrase");
+				Helper.logMessage("Transaction verify "+transaction.verify());
+															
+				JSONObject peerRequest = new JSONObject();
+				peerRequest.put("requestType", "ProcessTransactions");
+				JSONArray transactionsData = new JSONArray();
+				transactionsData.add(transaction.GetTransaction());
+				peerRequest.put("ValidatedTransactions", transactionsData);
+				
+				Peers peers = new Peers();
+				peers.SendToAllPeers(peerRequest);
+		 
+		 
+		       response.put("Test transaction sent.", 1 );
 		 } catch (Exception e) {
-				     Helper.logMessage("Response error. (AjaxGetNodeForgeSignatures)");
+				     Helper.logMessage("Response error. (AjaxCreateTestTransaction)");
 				     response.put("error",1);
 		 }              
       

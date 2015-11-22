@@ -309,5 +309,18 @@ public final class Helper {
 		  }
 	  } 
      
+     public static BigInteger Base58ToBigInteger( String Base58Str ) {
+
+        try {
+              MessageDigest digest = MessageDigest.getInstance("SHA-256");	        
+	           digest.update(Base58decode(Base58Str));	        
+	           byte[] Hash = digest.digest();        		               
+              return new BigInteger(1, new byte[] { Hash[0], Hash[1], Hash[2], Hash[3], 
+                                                    Hash[4], Hash[5], Hash[6], Hash[7] });	        	  
+    	  } catch (Exception e) { }
+            	  
+    	  return new BigInteger(1, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 });
+    }
+
 
 }

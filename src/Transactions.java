@@ -30,7 +30,7 @@ public final class Transactions  {
 	   }		   
 
 	
-		static int TransactionCounter;
+		//static int TransactionCounter;
 	   static HashMap<String, Transaction> transactions  = new HashMap<>();
 	   public static ConcurrentHashMap<String, Transaction> UnconfirmedTransactions = new ConcurrentHashMap<>();
 	   static ConcurrentHashMap<String, Transaction> DoubleSpendingTransactions = new ConcurrentHashMap<>();
@@ -98,12 +98,12 @@ public final class Transactions  {
            	   try {		
 	               Transaction transaction = Transaction.GetTransactionFromJSON((JSONObject)TransactionsData.get(i));
 	               String TransactionId = transaction.GetTransactionId();
-	               Helper.logMessage("Transaction ("+ i +") Id: "+TransactionId);
+	               // Helper.logMessage("Transaction ("+ i +") Id: "+TransactionId);
 	               int curTime = Helper.getEpochTime(System.currentTimeMillis());
 	               
 	               if ( ( transaction.fee > 0 ) && ( transaction.deadline > 1 ) && ( transaction.timestamp < (curTime + 15) ) &&
 	               ( transaction.timestamp + transaction.deadline > curTime ) ) {
-	                     Helper.logMessage("Transaction accepted."); 
+	                     //Helper.logMessage("Transaction accepted."); 
 								if (transactions.get(TransactionId) == null && UnconfirmedTransactions.get(TransactionId) == null 
 								  && DoubleSpendingTransactions.get(TransactionId) == null && transaction.verify()) {
 								     Helper.logMessage("Verify OK.");
@@ -121,7 +121,7 @@ public final class Transactions  {
 								            }								
 							            }							
 						           }								  	
-                             transaction.TransactionIndex = ++TransactionCounter;
+                             // transaction.TransactionIndex = ++TransactionCounter;
 									  if (TransactionDoubleSpending) {											
 											DoubleSpendingTransactions.put(transaction.GetTransactionId(), transaction);											
 									  } else {											
@@ -131,7 +131,7 @@ public final class Transactions  {
 											}	  	
 								  	  }								  									  	
 		                  }	else {
-		                     Helper.logMessage("Transaction exist or verify fail.");
+		                     //Helper.logMessage("Transaction exist or verify fail.");
 		                  }                   
 	               }
 	            } catch (Exception e) { 
@@ -143,9 +143,9 @@ public final class Transactions  {
 				
 				JSONObject peerRequest = new JSONObject();
 				peerRequest.put("requestType", "processTransactions");
-				peerRequest.put("ValidatedTransactions", ValidatedTransactions);
+				peerRequest.put("ValidatedTransactions", ValidatedTransactions.toString());
 				
-				Peers peers = new Peers();
+				Peers peers = new Peers();				
 				peers.SendToAllPeers(peerRequest);
 				
 			}

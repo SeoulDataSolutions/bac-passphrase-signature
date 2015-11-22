@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.Properties;
 import java.util.Properties;
+import bac.crypto.Crypto;
 
 import java.nio.file.Paths;
 import java.nio.file.Files;
@@ -16,6 +17,8 @@ import java.io.InputStream;
 
 
 public final class Settings {
+	
+   public static final String GenesisHeaderSignature ="4aU6qRfjnAp1dPzkjod2sprsSG8HZSv6UZJSEA8BQHkyoA88BhdJvMGgdMgpXQv77JMTgsD5eqc2rHdfvL6A3QhU";
 
    public static final String VERSION = "BAC V1.0";
    public static final String CONFIG_FILE = "settings.conf";
@@ -26,7 +29,13 @@ public final class Settings {
    public static String SeedNodes = "127.0.0.1:8080;127.0.0.1:8081";
    public final static int APItimeout = 15000;   
 
+   public static String NodeSecretPhrase ="SecretPhrase";
+   public static String NodePublicKey ="";
+   public static String NodeBountyAddress ="";
+
    public static long epochBeginning;
+
+   public final static int BlockTime = 30;
 
    public static final String alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
 
@@ -35,8 +44,8 @@ public final class Settings {
         Calendar calendar = Calendar.getInstance();
 			calendar.set(Calendar.ZONE_OFFSET, 0);
 			calendar.set(Calendar.YEAR, 2015);
-			calendar.set(Calendar.MONTH, Calendar.AUGUST);
-			calendar.set(Calendar.DAY_OF_MONTH, 20);
+			calendar.set(Calendar.MONTH, Calendar.NOVEMBER);
+			calendar.set(Calendar.DAY_OF_MONTH, 14);
 			calendar.set(Calendar.HOUR_OF_DAY, 12);
 			calendar.set(Calendar.MINUTE, 0);
 			calendar.set(Calendar.SECOND, 0);
@@ -57,7 +66,19 @@ public final class Settings {
 			             if (defaultProperties.getProperty("APIport") != null)
 			               APIport = Integer.parseInt(defaultProperties.getProperty("APIport"));
 			             if (defaultProperties.getProperty("SeedNodes") != null)
-			               SeedNodes = defaultProperties.getProperty("SeedNodes");    
+			               SeedNodes = defaultProperties.getProperty("SeedNodes");
+			             if (defaultProperties.getProperty("NodeSecretPhrase") != null) {
+			                NodeSecretPhrase = defaultProperties.getProperty("NodeSecretPhrase");
+			                try {
+			                   NodePublicKey = Helper.Base58encode((byte[]) Crypto.getPublicKey(NodeSecretPhrase));
+                            NodeBountyAddress = Helper.PublicKeyToAddress(Helper.Base58decode(NodePublicKey));
+                            Helper.logMessage("Node Bounty Address:"+NodeBountyAddress);
+                         } catch (Exception e) {
+		                      Helper.logMessage("Bounty address generation fail. "+e.toString());
+		                   } 
+
+			             }
+			               
 			         } 
 		         } catch (IOException e) {
 		                    Helper.logMessage("Config file read IOException.\n");

@@ -11,6 +11,9 @@ import bac.account.Accounts;
 import bac.account.Account;
 import bac.transaction.Transactions;
 import bac.transaction.Transaction;
+import bac.blockchain.Block;
+import bac.blockchain.Forge;
+import bac.blockchain.Blockchain;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
@@ -52,33 +55,8 @@ public final class Test  {
             Accounts.getInstance().PutAccount(account);
             account = Accounts.getInstance().GetAccount("BrcLFiUk8SZFdjDNvFAg3NZZmqx2Fdy");
  
- 
- /*        
-            // Transaction test
-            Thread.sleep(5550);
-            
-            
 
-            Helper.logMessage("Recipient address: "+Helper.PublicKeyToAddress(Crypto.getPublicKey("RecipientSecretPhrase")));
-            // B3yFMMk6zsw7ZsEhzbA9nwSb7cxZw2fu
 
-            Transaction transaction = new Transaction(
-                  Transaction.TYPE_ORDINARY_PAYMENT, ( 5 * 60 ), 
-                  "7z1pmi6XifvGMhV7T1AxJsP8UsSVE5mP3SHKuDqd83xw", 
-                  "B3yFMMk6zsw7ZsEhzbA9nwSb7cxZw2fu", 1050, 10, null);
-				transaction.sign("secretPhrase");
-				Helper.logMessage("Transaction verify "+transaction.verify());
-															
-				JSONObject peerRequest = new JSONObject();
-				peerRequest.put("requestType", "ProcessTransactions");
-				JSONArray transactionsData = new JSONArray();
-				transactionsData.add(transaction.GetTransaction());
-				peerRequest.put("ValidatedTransactions", transactionsData);
-				
-				Peers peers = new Peers();
-				peers.SendToAllPeers(peerRequest);
-				
-*/
 				
 	     } catch (Exception e) {
 		     Helper.logMessage("Test fail. "+e.toString());

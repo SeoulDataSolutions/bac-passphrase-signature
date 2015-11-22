@@ -8,9 +8,10 @@ import java.security.MessageDigest;
 
 import org.json.simple.JSONObject;
 
-public final class Transaction implements Serializable {
+public final class Transaction implements Comparable<Transaction> {
 
 		public static final int TYPE_ORDINARY_PAYMENT = 1;		
+		public static final int TYPE_NODE_BOUNTY = 2;
 
       // Signed Transaction Data
       int version;
@@ -23,8 +24,7 @@ public final class Transaction implements Serializable {
 		long fee;		
 		
 		String signature;		
-	   int TransactionIndex;
-
+	   
       public Transaction( int type,	int deadline, String senderPublicKey, String recipient, long amount, long fee, String signature ) {
 			
 	      this.version=1;
@@ -36,7 +36,24 @@ public final class Transaction implements Serializable {
 			this.amount=amount;
 			this.fee=fee;
 			this.signature=signature;
-		}	   
+		}	
+		
+		public int compareTo(Transaction o) {
+			
+         if (( o.fee != 0 ) && ( this.fee != 0)) {
+             if ((this.amount/this.fee) > (o.amount/o.fee)) return 1;
+			    if ((this.amount/this.fee) < (o.amount/o.fee)) return -1;         
+         } 	
+         
+         if ( o.fee == 0 ) return 1;
+         if ( this.fee == 0 ) return -1;
+
+			if (this.timestamp < o.timestamp ) return -1;
+			if (this.timestamp > o.timestamp ) return 1;
+						
+			return 0;
+			
+		}   
 	   
 	   public JSONObject GetTransaction() {
 			
@@ -89,7 +106,7 @@ public final class Transaction implements Serializable {
 			
 		}
 		
-      String GetTransactionId() throws Exception {
+      public String GetTransactionId() throws Exception {
 			try {
 			   return Helper.Base58encode(MessageDigest.getInstance("SHA-256").digest(GetTransaction().toString().getBytes("UTF-8")));
 			} catch (Exception e) {
@@ -119,6 +136,8 @@ public final class Transaction implements Serializable {
 
 		}
 
-	 
+     public int GetTimestamp() {
+        return timestamp;     
+     }	 
 }
 

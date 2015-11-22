@@ -15,9 +15,10 @@ public final class Peers {
 
    public static String MyAnnouncedAddress ="127.0.0.1:8080";
 
-   public static final int PEER_STATE_DISCONNECTED = 0;	
-	public static final int PEER_STATE_CONNECTED = 1;
-	
+   public static final int PEER_STATE_OFFLINE = 0;	
+   public static final int PEER_STATE_DISCONNECTED = 1;
+   public static final int PEER_STATE_UNSETTLED = 2;
+	public static final int PEER_STATE_CONNECTED = 3;		
 
    public static HashMap<String, Peer> peers = new HashMap<>();
    public static int PeersCounter;
@@ -42,6 +43,7 @@ public final class Peers {
        }
        Cron.AddCronThread( ConnectToPeers, 5 );
        Cron.AddCronThread( FindNewPeers, 7 );	
+       Cron.AddCronThread( RescanOfflinePeers, 50 );
 	}
 	
 	
@@ -53,8 +55,30 @@ public final class Peers {
 			  if (peer != null) {								
 				 peer.PeerConnect();								
 			  }
+           peer = Peer.GetRandomPeer(PEER_STATE_UNSETTLED);
+			  if (peer != null) {
+			  	  if ((peer.ConnectionTimestamp != 0) && (( Helper.getEpochTimestamp() - peer.ConnectionTimestamp ) > (Settings.BlockTime/20) )) {
+                 peer.PeerState = PEER_STATE_CONNECTED;
+					  Helper.logMessage("Peer connected."+peer.PeerAnnouncedAddress);			  	  
+			  	  }								
+				 								
+			  }
 		 } catch (Exception e) { 
            Helper.logMessage("Cront task (ConnectToPeers) error.");		 
+		 }	  
+     }
+   };
+			  
+	public static Runnable RescanOfflinePeers = new Runnable() { 
+     public void run() {
+     	
+       try {     	
+           Peer peer = Peer.GetRandomPeer(PEER_STATE_OFFLINE);
+			  if (peer != null) {								
+				 peer.PeerState = PEER_STATE_DISCONNECTED;								
+			  }
+		 } catch (Exception e) { 
+           Helper.logMessage("Cront task (RescanOfflinePeers) error.");		 
 		 }	  
      }
    };
